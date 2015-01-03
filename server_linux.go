@@ -34,6 +34,8 @@ func (s *Server) setDefaultAdvertisement() error {
 		}
 		ad, _ := serviceAdvertisingPacket(u)
 		opts = append(opts, linux.AdvertisingPacket(ad))
+	} else {
+		opts = append(opts, linux.AdvertisingPacket(s.advertisingPacket))
 	}
 	if len(s.scanResponsePacket) == 0 {
 		opts = append(opts, linux.ScanResponsePacket(nameScanResponsePacket(s.name)))
