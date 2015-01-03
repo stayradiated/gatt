@@ -2,7 +2,6 @@ package gatt
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"time"
@@ -75,10 +74,8 @@ func (s *Server) start() error {
 	// Try to get a HCI device
 	h := linux.NewHCI(s.hci, logger, s.maxConnections)
 	if h == nil {
-		fmt.Println("trying 1")
 		h := linux.NewHCI(1, logger, s.maxConnections)
 		if h == nil {
-			fmt.Println("trying 0")
 			h := linux.NewHCI(0, logger, s.maxConnections)
 			if h == nil {
 				panic("Could not open HCI device")
