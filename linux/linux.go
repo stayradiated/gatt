@@ -34,13 +34,10 @@ func (h HCI) Cmd() *cmd.Cmd       { return h.cmd }
 func (h HCI) Event() *event.Event { return h.evt }
 func (h HCI) L2CAP() *l2cap.L2CAP { return h.l2c }
 
-func NewHCI(l *log.Logger, maxConn int) *HCI {
-	d, err := device.NewSocket(1)
+func NewHCI(deviceIndex int, l *log.Logger, maxConn int) *HCI {
+	d, err := device.NewSocket(deviceIndex)
 	if err != nil {
-		d, err = device.NewSocket(0)
-		if err != nil {
-			return nil
-		}
+		return nil
 	}
 	c := cmd.NewCmd(d, l)
 	l2c := l2cap.NewL2CAP(c, d, l, maxConn)

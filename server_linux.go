@@ -4,6 +4,8 @@ import (
 	"errors"
 	"log"
 	"net"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/paypal/gatt/linux"
@@ -70,7 +72,30 @@ func (s *Server) setManufacturerData(b []byte) {
 
 func (s *Server) start() error {
 	var logger *log.Logger
-	h := linux.NewHCI(logger, s.maxConnections)
+	var h *linux.HCI
+
+	// "hci0" -> 0
+	// "hci1" -> 1
+	deviceIndex, err := strconv.Atoi(strings.TrimPrefix(s.hci, "hci"))
+
+	if err == nil {
+		h = linux.NewHCI(deviceIndex, logger, s.maxConnections)
+	}
+
+	if h == nil {
+		deviceIndex = 1
+		h := linux.NewHCI(deviceIndex, logger, s.maxConnections)
+
+		if h == nil {
+			deviceIndex = 0
+			h := linux.NewHCI(deviceIndex, logger, s.maxConnections)
+
+			if h == nil {
+				panic("Could not open HCI device")
+			}
+		}
+	}
+
 	a := linux.NewAdvertiser(h.Cmd())
 	l := h.L2CAP()
 	l.Adv = a
