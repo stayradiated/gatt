@@ -18,7 +18,7 @@ var ErrEIRPacketTooLong = errors.New("max packet length is 31")
 // a new Server. Only one server may be running at a time.
 type Server struct {
 	name           string
-	hci            string
+	hci            int
 	connect        func(c Conn)
 	disconnect     func(c Conn)
 	receiveRSSI    func(c Conn, rssi int)
@@ -46,7 +46,7 @@ type Server struct {
 // See also Server.Options.
 // See http://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis for more discussion.
 func NewServer(opts ...option) *Server {
-	s := &Server{maxConnections: 1, inited: make(chan struct{})}
+	s := &Server{hci: 1, maxConnections: 1, inited: make(chan struct{})}
 	for _, opt := range opts {
 		opt(s)
 	}
@@ -156,11 +156,11 @@ func Name(n string) option {
 	}
 }
 
-// HCI sets the hci device to use, e.g. "hci1".
-// To automatically select an hci device, use "".
+// HCI sets the hci device to use, e.g. 0, 1, 2
+// If the device doesn't exist, it will automatically try to select one
 // HCI cannot be called while serving.
 // See also Server.NewServer and Server.Option.
-func HCI(hci string) option {
+func HCI(hci int) option {
 	return func(s *Server) option {
 		if s.serving {
 			panic("cannot set HCI while server is running")

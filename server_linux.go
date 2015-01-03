@@ -2,10 +2,9 @@ package gatt
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/paypal/gatt/linux"
@@ -72,24 +71,15 @@ func (s *Server) setManufacturerData(b []byte) {
 
 func (s *Server) start() error {
 	var logger *log.Logger
-	var h *linux.HCI
 
-	// "hci0" -> 0
-	// "hci1" -> 1
-	deviceIndex, err := strconv.Atoi(strings.TrimPrefix(s.hci, "hci"))
-
-	if err == nil {
-		h = linux.NewHCI(deviceIndex, logger, s.maxConnections)
-	}
-
+	// Try to get a HCI device
+	h := linux.NewHCI(s.hci, logger, s.maxConnections)
 	if h == nil {
-		deviceIndex = 1
-		h := linux.NewHCI(deviceIndex, logger, s.maxConnections)
-
+		fmt.Println("trying 1")
+		h := linux.NewHCI(1, logger, s.maxConnections)
 		if h == nil {
-			deviceIndex = 0
-			h := linux.NewHCI(deviceIndex, logger, s.maxConnections)
-
+			fmt.Println("trying 0")
+			h := linux.NewHCI(0, logger, s.maxConnections)
 			if h == nil {
 				panic("Could not open HCI device")
 			}
