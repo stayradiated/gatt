@@ -46,7 +46,7 @@ type Server struct {
 // See also Server.Options.
 // See http://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis for more discussion.
 func NewServer(opts ...option) *Server {
-	s := &Server{hci: 1, maxConnections: 1, inited: make(chan struct{})}
+	s := &Server{hci: -1, maxConnections: 1, inited: make(chan struct{})}
 	for _, opt := range opts {
 		opt(s)
 	}

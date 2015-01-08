@@ -72,15 +72,21 @@ func (s *Server) setManufacturerData(b []byte) {
 
 func (s *Server) start() error {
 	var logger *log.Logger
+	var h *linux.HCI
 
 	// Try to get a HCI device
-	h := linux.NewHCI(s.hci, logger, s.maxConnections)
-	if h == nil {
-		h := linux.NewHCI(1, logger, s.maxConnections)
+	if s.hci >= 0 {
+		h = linux.NewHCI(s.hci, logger, s.maxConnections)
 		if h == nil {
-			h := linux.NewHCI(0, logger, s.maxConnections)
+			return errors.New("Could not open HCI device")
+		}
+	} else {
+		// Try to automatically select a HCI device
+		h = linux.NewHCI(1, logger, s.maxConnections)
+		if h == nil {
+			h = linux.NewHCI(0, logger, s.maxConnections)
 			if h == nil {
-				panic("Could not open HCI device")
+				return errors.New("Could not open HCI device")
 			}
 		}
 	}
